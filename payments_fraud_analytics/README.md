@@ -6,12 +6,68 @@ Capstone project for Fintech and AI prpogram
 # how to run each of the three parts end to end
 
 
-# summary of design decisions for each part
+# summary of design decisions
 
-SQL Queries for PART 1 - TASK PART B.
+Presented below are:
+1) excel formulae and their design/explanation
+2) SQL queries and their design
+3) Design/explanation of python notebook for payment reconciliation
+4) Design of python notebook to create 
+    a) Headline scorecards 
+    b) Time series chart for trends
+    c) Bar charts for GMV breakdown
+    d) Details tabke with conditional formatting
+
+## Part A — Excel/Sheets merchant workbook
+Workbook available at merchant_workbook.xlsx
+
+#### VLookup for merchant_name, category, and region from the merchants sheet in transactions-view tab of merchant_workbook.xlsx
+Added merchants tab to merchant_workbook.xlsx sheet. Below Vlookup formulae used:
+
+=IFERROR(IFNA(vlookup(C2,merchants!$A$1:$D$41,2,FALSE),"Merchant not found"), "Merchant not found")
+
+=IFERROR(IFNA(vlookup(C2,merchants!$A$1:$D$41,3,FALSE),"Merchant not found"), "Merchant not found")
+
+=IFERROR(IFNA(vlookup(C2,merchants!$A$1:$D$41,4,FALSE),"Merchant not found"), "Merchant not found")
+
+#### HLOOKUP demonstration on a small horizontally-laid-out reference table
+
+Added below reference data in payments_method tab of merchant_workbook.xlsx sheet. 
+
+Data used:
+| payment_method  | Wallet | UPI | Card  |
+| --------------- | ------ | --- | ----- |
+| fees            | 0.25%  | 0%  | 0.50% |
+
+
+Hlookup formulae used:
+
+=IFERROR(IFNA(hlookup(G2,payment_methods!$A$1:$E$2,2,FALSE),"Payment method not found"), "Payment method not found")
+
+####  Nested IF/AND classification column labeling each transaction "High-Value Merchant Day" when a merchant's daily transaction total (via a pivot table) exceeds INR 5,000 and its region is not "East"
+
+Added 3 new columns
+1) transaction_date: Converted ttransaction_time to Date
+Formula used: =int(D2)
+2) daily_amount_total: Total of amount_inr for a merchant on a day. 
+Formula used: =SUMIFS(F:F,C:C,C2,E:E,E2)
+3) highvalue_merchant_day: Checks daily_amount_total > 5000 and region not east. It adds text as "Normal" if condition not met or High-Value Merchant Day if condition met. 
+Formula used: =IF(AND(N2 > 5000, L2 <> "East"), "High-Value Merchant Day", "Normal")
+
+####  Pivot table summarizing total amount_inr and count of transactions by merchant_id and status, 
+1) Added a pivot table with rows: merchant_id and status
+2) Added Values: sum(amount_inr) and count(transaction_id)
+
+#### Pivot table to show count-vs-count-unique comparison (unique days transacted vs. total transaction count)
+1) Added a pivot table with rows: merchant_id
+2) Added Values: Count Unique of transaction_date and count of transaction_id
+
+## SQL Queries for PART 1 - TASK PART B
+Created tables and improted data from csv files into the tables. sqlite3 database file available in paytm_payments.db.
+
 Below are the 6 SQL queries that cover all the requirements:
 
-1) Quantify chargeback impact: count of chargeback transactions, unique users affected, total chargeback amount.
+#### 1) Quantify chargeback impact: count of chargeback transactions, unique users affected, total chargeback amount.
 
 select count(*) as users_impacted, count(distinct user_id) as distinct_users_impacted, sum(amount_inr) as total_amount from transactions where status = 'chargeback'
 
@@ -19,7 +75,7 @@ Result -->
 users_impacted	distinct_users_impacted	total_amount
 28		27			54472
 
-2) Identify burner accounts: users whose signup_date is less than 30 days before their transaction's transaction_time
+#### 2) Identify burner accounts: users whose signup_date is less than 30 days before their transaction's transaction_time
 
 select t.user_id, t.transaction_id, JULIANDAY(t.transaction_time) - JULIANDAY(u.signup_date) as diff
 from transactions t join users u on t.user_id = u.user_id
@@ -44,7 +100,7 @@ user_id	transaction_id	diff
 365	TXN200014	22.0
 
 
-3) Detect velocity attacks: users with 3 or more transactions within any 10-minute window
+#### 3) Detect velocity attacks: users with 3 or more transactions within any 10-minute window
 
 WITH txn_windows AS (
     SELECT 
@@ -78,7 +134,7 @@ user_id	transaction_time	prior_time
 314	2026-01-02 18:02:00	2026-01-02 18:00:00
 345	2026-01-23 09:02:00	2026-01-23 09:00:00
 
- 4) List all the users and count of transactions by them. Count should be 0 in case there are no transactions for the user but it should be present in the output
+ #### 4) List all the users and count of their ransactions. Count should be 0 in case there are no transactions for the user but it should be present in the result
 
 select u.user_id, u.signup_date, count(t.transaction_id) as Number_transactions from users u left join transactions t on u.user_id = t.user_id 
 group by u.user_id order by u.user_id;
@@ -452,7 +508,7 @@ user_id	signup_date	Number_transactions
 365	2025-12-27 21:00:00	1
 
 
-5) List users with more than 3 transactions, limit to top 5 users only
+### 5) List users with more than 3 transactions, limit to top 5 users only
 
 select user_id, count(*) as cnt from transactions group by user_id having cnt > 3 order by cnt desc limit 5
 
@@ -465,7 +521,7 @@ user_id	cnt
 277	6
 345	5
 
-6) Calculate total amount by merchant category
+#### 6) Calculate total amount by merchant category
 
 select sum(t.amount_inr) as total_amount, m.category from transactions t join merchants m on m.merchant_id = t.merchant_id
 group by m.category order by total_amount desc;
@@ -480,3 +536,74 @@ total_amount	category
 56887	entertainment
 26304	bill_payment
 15125	recharge
+
+### Part C — Python payment reconciliation
+
+Code available in reconcile.ipynb file
+
+### Part D — Four-layer analytics dashboard
+All logic available in dashboard.ipynb file
+
+#### Chart for Score cards
+Created 2 functions create_scorecard and create_header_plot. 
+
+1) Used the ledger_df from ledger.csv and used ledger_df['amount_inr'].sum() to get Total GMV scorecard
+
+2) Used len(ledger_df[ledger_df['status'] == 'captured']) / len(ledger_df) * 100 to calculate overall success rate
+
+3) For reconciliation rate, fetched the common ids, merged them into comparison_df and then compared amount_inr  and status. If they are same added it to common_df. Then reconciliation rate was calculated as reconciliation_match_rate = len(common_df) / len(ledger_df) * 100
+
+4) chargeback ratio was calculated as len(ledger_df[ledger_df['status'] == 'chargeback']) / len(ledger_df) * 100
+
+![alt text](img1.png)
+
+#### Time series chart of daily GMV and daily chargeback count over the 30-day window
+
+Used the below code to get data for time series:
+
+ledger_df['transaction_date'] = pd.to_datetime(ledger_df['transaction_time']).dt.date
+
+ledger_chart_gmv_df = ledger_df.groupby('transaction_date')['amount_inr'].sum()
+
+ledger_chart_chargeback_df = ledger_df[ledger_df['status'] == 'chargeback'].groupby('transaction_date')['amount_inr'].count()
+
+ledger_chart_df = pd.merge(ledger_chart_gmv_df, ledger_chart_chargeback_df, on = 'transaction_date',
+                           how="outer", suffixes=("_gmv", "_chargeback_count")).fillna(0)
+
+ledger_chart_df['amount_inr_chargeback_count'] = ledger_chart_df['amount_inr_chargeback_count'].astype(int)
+
+![alt text](img2.png)
+
+#### Bar Charts of GMV by payment_method and by category (joined from merchants).
+
+Got the data for the bar chart using the below code
+payment_method_agg_df = ledger_df.groupby('payment_method')['amount_inr'].sum()
+
+ledger_merchant_category_df = pd.merge(ledger_df, merchant_df, on='merchant_id')
+
+merchant_category_agg_df = ledger_merchant_category_df.groupby('category')['amount_inr'].sum()
+
+![alt text](img3.png)
+
+#### Table of top 10 merchants by transaction count, with conditional highlighting (e.g., a flag column) for any merchant whose chargeback_ratio exceeds 1% : chargeback_ratio (per-merchant) = (count of that merchant's transactions with status == "chargeback") / (count of all of that merchant's transactions).
+
+Used the below code to get the data to plot
+
+top_merchants_df = ledger_df.groupby('merchant_id')['transaction_id'].count().to_frame()
+
+top_merchants_df = top_merchants_df.rename(columns={'transaction_id':'transaction_count'})
+
+merchants_chargeback_df = ledger_df[ledger_df['status'] == 'chargeback'].groupby('merchant_id')['transaction_id'].count().to_frame().rename(columns={'transaction_id':'chargeback_count'})
+
+top_merchants_flag_df  = pd.merge(top_merchants_df, merchants_chargeback_df, on='merchant_id', how='left')
+
+top_merchants_flag_df['chargeback_count'] = top_merchants_flag_df['chargeback_count'].fillna(0)
+
+top_merchants_flag_df['flag'] = top_merchants_flag_df['chargeback_count'] / top_merchants_flag_df['transaction_count'] * 100 > 1
+
+top_merchants_flag_df = top_merchants_flag_df.sort_values(by='transaction_count', ascending=False)
+
+Then used code to conditionally format the table based the 'flag' value. 
+
+![alt text](img4.png)
+
