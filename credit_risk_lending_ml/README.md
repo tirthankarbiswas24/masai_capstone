@@ -35,6 +35,6 @@ However, Decision Tree has a great explanability power for the decisions (Reason
 ### Isolation Forest model
 Below are the evaluation metrices for the isolation Forest model
 
-Isolation Forest Recall: 73.33%
-Isolation Forest Precision: 73.33%
-Isolation Forest F1-Score: 73.33%
+- Isolation Forest Recall: 73.33%
+- Isolation Forest Precision: 73.33%
+- Isolation Forest F1-Score: 73.33%
