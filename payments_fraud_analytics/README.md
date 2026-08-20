@@ -3,7 +3,7 @@ Capstone project for Fintech and AI prpogram.
 This Read me file provides details for payment_fraud_analytics modeule.
 
 # how to set up the project
-0) run "python generate_data.py" to create the data in the file generate_data.csv
+0) After going to this folder using "cd payments_fraud_analytics" execute the command "python generate_data.py" to create the data in the file generate_data.csv
 1) excel workbook "merchant_workbook.xlsx" available with the implementation requested. Also contains the formulae.
 2) SQL queries available in the file sql_queries.sql file. Also contains the output
 3) Python notebook for reconciliation available as "reconcile.ipynb". Excute this notebook to get the required output 

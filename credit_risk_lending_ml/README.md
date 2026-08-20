@@ -1,3 +1,11 @@
+# masai_capstone
+Capstone project for Fintech and AI prpogram.
+This Read me file provides details for credit_risk_lending_ml modeule.
+
+# how to set up the project
+1) After going to this folder using "cd credit_risk_lending_ml" execute the command "python generate_data.py" to create the data in the file credit_applicants.csv and txn_behaviour.csv files
+2) Code for running the models - Logistic Regression, Decision Tree, Isolation forest along with creation evaluation metrices for them is available in the python notebook "credit_risk.ipynb". Execute thios notebook to get the results and output required
+
 ### Decision on encoding for employment type column/feature
 Since we have only 3 values for employment_type and these are not ordinal (no meaningful order between the values)
 we will use One Hot encoding and no scaling will be needed
