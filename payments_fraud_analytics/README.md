@@ -3,13 +3,27 @@ Capstone project for Fintech and AI prpogram.
 This Read me file provides details for payment_fraud_analytics modeule.
 
 # how to set up the project
-0) After going to this folder using "cd payments_fraud_analytics" execute the command "python generate_data.py" to create the data in the file generate_data.csv
+0) After going to this folder using "cd payments_fraud_analytics" execute the command "python generate_data.py" to create the data in the files
 1) excel workbook "merchant_workbook.xlsx" available with the implementation requested. Also contains the formulae.
 2) SQL queries available in the file sql_queries.sql file. Also contains the output
 3) Python notebook for reconciliation available as "reconcile.ipynb". Excute this notebook to get the required output 
 for discrepancies requested.
 4) Dashboard creation login available in the file "dashboard.ipynb". Execute this file to get the dashboard charts.
 These charts have been also copied to this READ me file
+
+# how to run it end to end
+1) Go to this folder using "cd payments_fraud_analytics". Then execute the command "python generate_data.py" to create the data in the 4 files merchants.csv, users.csv, ledger and gateway_export.csv.
+2) Excel workbook available in the file  "merchant_workbook.xlsx". It contains result of all the tasks that were requested.
+3) To excute the sql queries
+    a) Install sqlite client
+    b) Go the payments_fraud_analyiics folder (as was done in Step 1 above)
+    c) Run the command sqlite3 paytm_payments.db. This will open a SQL terminal
+    d) Execute the queries avaialnle in the file "sql_queries.sql"
+4) To run the python notebook that conatains reconciliation logic inside the function reconcile_payments():
+    a) Install ipython
+    b) Go the folder payment_fraud_analytics as was done in step 1 above
+    c) execute the command ipython -c "run reconcile.ipynb"
+5) To create the dashboard c=and the charts after installing ipython execute the command in the folder payment_fraud_analytics: ipython -c "run dashboard.ipynb"
 
 # summary of design decisions
 
