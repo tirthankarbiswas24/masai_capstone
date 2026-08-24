@@ -91,7 +91,14 @@ The 6 SQL queries are available in the file sql_queries.csv. Output of the queri
 Code available in reconcile.ipynb file. File has comments for the design decisions and explanations
 
 ### Part D — Four-layer analytics dashboard
-All logic available in dashboard.ipynb file
+All logic available in dashboard.ipynb file.
+
+Output frm the file:
+missing_in_gateway_count:  27 (~ 5%)
+missing_in_ledger_count:  10 (~ 2%)
+amount_mismatch_count:  16 (~ 3%)
+amount_mismatch_total:  1250 
+status_mismatch_count:  9 (~ 2%)
 
 #### Chart for Score cards
 Created 2 functions create_scorecard and create_header_plot. 
