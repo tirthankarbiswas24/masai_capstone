@@ -2,13 +2,19 @@
 Capstone project for Fintech and AI prpogram.
 This Read me file provides details for credit_risk_lending_ml modeule.
 
-# how to set up the project
+# how to run this project
 1) After going to this folder using "cd credit_risk_lending_ml" execute the command "python generate_data.py" to create the data in the file credit_applicants.csv and txn_behaviour.csv files
-2) Code for running the models - Logistic Regression, Decision Tree, Isolation forest along with creation evaluation metrices for them is available in the python notebook "credit_risk.ipynb". Execute thios notebook to get the results and output required
+2) Code for running the models - Logistic Regression, Decision Tree, Isolation forest along with creation evaluation metrices for them is available in the python notebook "credit_risk.ipynb". Execute this notebook to get the results and output required. Steps for the same are provided below:
+    a) Install ipython
+    b) Go the folder credit_risk_lending_ml as was done in step 1 above
+    c) execute the command ipython -c "run credit_risk.ipynb"
 
 ### Decision on encoding for employment type column/feature
 Since we have only 3 values for employment_type and these are not ordinal (no meaningful order between the values)
 we will use One Hot encoding and no scaling will be needed
+
+###  justify the stratification choice
+Since our default data set is highly imbalanced (80% good and 20% default), estratification nsures that the exact proportion of non-defaulters to defaulters is preserved across both training and testing dataset. If we use a standard random split instead of a stratified split, we can run into serious structural issues like missing defaulters problem, Model Bias for non defaulting customers.
 
 ## Gender/Location bias
 Even though we do not have any gender or location columns in our applicats data file, these fields can have corelation with 
