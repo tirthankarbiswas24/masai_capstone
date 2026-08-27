@@ -18,6 +18,12 @@ The stock ticker "PAYFIN" is hardcoded in the program. We can change the value o
 
 # summary of design decisions for each part
 
+## Assumptions for DCF
+- dcf_assumptions -> constant values used for parameters like tax rate = 25%, equity/debt weight = 75/25%, terminal rate = 5%, pre_tax_cost_of_debt = 8.5%. Hardcoded in dcf_assumptions
+- EBIT_assumptions --> For 5 years EBITDA, Depreciation, CAPEX, and NWC_change were Hardocded in EBIT_assumptions
+- EV_EBITDA_MULTIPLIER -> For all stocks EV/EBITDA multiple was hardcoded in EV_EBITDA_MULTIPLIER (like "PAYFIN": 10.0, "PAYRETAIL": 8.0,..)
+
+
 ## How the two estimates compare DCF and EV EBITDA multiple
 For PAYBOND the multiples were as given below. The DCF is significantly higher than EV/EBITDA multiple. Multiple value used is 6
 | Multiple | Value    |
