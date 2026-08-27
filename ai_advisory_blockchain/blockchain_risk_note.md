@@ -33,5 +33,5 @@ Howevever from regulatory perspective in India, profits are taxed at 33% and the
 2) Vishing: Scammers spoof calls to customers to get OTPs/ PINs / process loan applications etc. Scammers are using the Temptation and Greed part of the TANG framework to exploit customers
 
 ## One bank-side real-time defense mechanism that mitigates them
-1) Against Vising attacks, banks can build in app call verification and show in app if it is a genuine call. Banks can also use real time telemetry and behavior fraud detction to help customers
-2) For KYC submission frauds, banks can block synthetic and deep fraud submissions, use passive liveness detection. Banks can also enforce in app only submission of KYC and educate customers about the same
+1) For KYC submission frauds, banks can block synthetic and deep fraud submissions, use passive liveness detection. Banks can also enforce in app only submission of KYC and educate customers about the same
+2) Against Vising attacks, banks can build in app call verification and show in app if it is a genuine call. Banks can also use real time telemetry and behavior fraud detction to help customers
