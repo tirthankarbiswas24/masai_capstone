@@ -58,11 +58,14 @@ def calculate_dcf(ticker: str, wacc: float, terminal_growth: float):
     for year in ["year1", "year2", "year3", "year4", "year5"]:
         fcff = calculate_fcff(year)
         fcff_values.append(fcff)
+    #print(f"FCFF values for {ticker}: {fcff_values}")
     
     terminal_value = calculate_terminal_value(fcff_values[-1], wacc, terminal_growth)
+    #print(f"Terminal Value for {ticker}: {terminal_value:.2f}")
     discounted_fcffs = [fcff / ((1 + wacc) ** (i + 1)) for i, fcff in enumerate(fcff_values)]
     discounted_terminal_value = terminal_value / ((1 + wacc) ** 5)
     dcf_value = sum(discounted_fcffs) + discounted_terminal_value
+    #print(f"DCF Value for {ticker}: {dcf_value:.2f}")
     return dcf_value
 
 def generate_sensitivity_table_data(ticker: str):
