@@ -13,7 +13,7 @@ import investor_profiles
 import stock_universe
 import disclosure_snippets
 import numpy as np
-import json
+import json, os
 import array
 
 RISK_PROFILES = [
@@ -22,7 +22,19 @@ RISK_PROFILES = [
 {"risk_tolerance": "Aggressive", "distribution_strategy": "equal-weight", "stocks_list": ["PAYTECH", "PAYFIN", "PAYINFRA"]}
 ]
 
-# Defines the tools
+# Set USE_LLM appropriately
+def have_llm():
+    """True if an Anthropic key is set AND the SDK imports."""
+    try:
+        import anthropic  # noqa
+        return bool(os.environ.get("ANTHROPIC_API_KEY"))
+    except Exception:
+        return False
+
+USE_LLM = have_llm()
+print("Mode:", "LIVE LLM agent" if USE_LLM else "DETERMINISTIC agent (no key) — same loop, scripted decisions")
+
+# Define the tools
 
 def get_stock_data(ticker: str):
   return stock_universe.STOCK_UNIVERSE.get(ticker), stock_universe.MARKET_RETURN, stock_universe.RISK_FREE_RATE
@@ -89,11 +101,11 @@ def run_tool(name, args):
     return result
 
 TOOLS = {
-    "create_stocks_portfolio": create_stocks_portfolio,
     "get_stock_data": get_stock_data,
     "calculate_return_stock": calculate_return_stock,
     "calculate_return_portfolio": calculate_return_portfolio,
     "calculate_variance_portfolio": calculate_variance_portfolio,
+    "create_stocks_portfolio": create_stocks_portfolio,
     "escalate_human": escalate_human
 }
 
@@ -113,53 +125,40 @@ TOOL_SCHEMAS = [
                       "required": ["weights", "stocks", "Rm", "Rf", "correlation"]}}
     ]
 
-# Steps to follow in scripted mode
-AGENT_STEPS = [
-    "create_stocks_portfolio",
-
-]
-
-stock_data, Rm, Rf = get_stock_data("PAYBOND")
-#print("Stock Data -> ", Rm, Rf, stock_data)
-#print("Return for stock : ", f"{calculate_return_stock(Rm, Rf, stock_data.get('beta')):.2}")
-weights = [1/3, 1/3, 1/3]
-stocks= []
-stock_data, Rm, Rf = get_stock_data("PAYBOND")
-stocks.append(stock_data)
-stock_data, Rm, Rf = get_stock_data("PAYGOLD")
-stocks.append(stock_data)
-stock_data, Rm, Rf = get_stock_data("PAYRETAIL")
-stocks.append(stock_data)
-portfolio_return = calculate_return_portfolio(weights, stocks, Rm, Rf, 0.3)
-portfolio_std_dev = calculate_variance_portfolio(weights=weights, stocks=stocks, correlation=0.3)
-#print("Portfolio return: ", f"{portfolio_return:.2}")
-#print("Portfolio variance: ", f"{portfolio_std_dev:.2}")
-
 """Build the definitive pipeline below"""
 
 #print(create_stocks_portfolio("Conservative"))
+def advisory_agent_scripted():
+  # Think - Read one investor profile and determine its allocation using the lookup table in investor_profiles.py file
+  # Step 1, Read Investor profile record one by one from investor_profiles.py file
+  for investor in investor_profiles.INVESTOR_PROFILES:
+    print("Investor id : ", investor.get("investor_id"), investor.get("risk_tolerance"))
 
-# Step 1, Read Investor profile record one by one from investor_profiles.py file
-for investor in investor_profiles.INVESTOR_PROFILES:
-  print("Investor id : ", investor.get("investor_id"), investor.get("risk_tolerance"))
+  # Act - call get_stock_data(ticker) "tool" function to look up beta/analyst_expected_return/std_dev from STOCK_UNIVERSE for each ticker in the portfolio
+  # Step 2, Call create_stocks_portfolio passing each investor's risk_tolerance. It internally calls get_stock_data and returns weights, stocks_arr, Rm, Rf
+    inv_weights, inv_stocks, Rm, Rf, correlation = run_tool("create_stocks_portfolio", {"risk_tolerance": investor.get("risk_tolerance")})
 
-# Step 2, Call create_stocks_portfolio passing each investor's risk_tolerance. It internally calls get_stock_data
-# and returns weights, stocks_arr, Rm, Rf
-  inv_weights, inv_stocks, Rm, Rf, correlation = run_tool("create_stocks_portfolio", {"risk_tolerance": investor.get("risk_tolerance")})
+  # Observe, Decide - using prescribed 1/3 allocation for the investor's risk_tolerance tier,
+  # compute portfolio's CAPM-expected return per stock and portfolio variance
+  # Step 3, Call calculate_return_portfolio passing weights, stocks, Rm, Rf, correlation
+    result_return = run_tool("calculate_return_portfolio", {"weights": inv_weights, "stocks": inv_stocks, "Rm": Rm, "Rf": Rf, "correlation": correlation })
+  # Step 4, Call calculate_variance_portfolio passing  weights, stocks, correlation
+    result_variance = run_tool("calculate_variance_portfolio", {"weights": inv_weights, "stocks": inv_stocks, "correlation": correlation})
 
-# Step 3, Call calculate_return_portfolio passing weights, stocks, Rm, Rf, correlation
-  result_return = run_tool("calculate_return_portfolio", {"weights": inv_weights, "stocks": inv_stocks, "Rm": Rm, "Rf": Rf, "correlation": correlation })
+  # Human-in-the-loop escalation
+  # Step 5, Escalate to human if volatility > 20
+    escalation = run_tool("escalate_human", {"volatility": result_variance})
+  # Print the output
+    if not escalation:
+      for risk in RISK_PROFILES:
+        if investor.get("risk_tolerance") == risk.get("risk_tolerance"):
+          print(f"For {investor.get("risk_tolerance")} investor {investor.get("investor_id")}, we recommend an allocation across {risk.get("stocks_list")} with an expected portfolio return of {result_return:.1%} and volatility of {result_variance:.1%}")
+    else:
+      print(f"ESCALATED_TO_HUMAN_ADVISOR, volatility: {result_variance:.1%}")
+    print("-" * 150)
 
-# Step 4, Call calculate_variance_portfolio passing  weights, stocks, correlation
-  result_variance = run_tool("calculate_variance_portfolio", {"weights": inv_weights, "stocks": inv_stocks, "correlation": correlation})
-
-# Step 5, Escalate to human if volatility > 20
-  escalation = run_tool("escalate_human", {"volatility": result_variance})
-# Print the output
-  if not escalation:
-    for risk in RISK_PROFILES:
-      if investor.get("risk_tolerance") == risk.get("risk_tolerance"):
-        print(f"For {investor.get("risk_tolerance")} investor {investor.get("investor_id")}, we recommend an allocation across {risk.get("stocks_list")} with an expected portfolio return of {result_return:.1%} and volatility of {result_variance:.1%}")
-  else:
-     print(f"ESCALATED_TO_HUMAN_ADVISOR, volatility: {result_variance:.1%}")
-  print("-" * 150)
+print(f" Running ai advisory agent .... ")
+if USE_LLM:
+  print("To be implemented")
+else:
+  advisory_agent_scripted()
