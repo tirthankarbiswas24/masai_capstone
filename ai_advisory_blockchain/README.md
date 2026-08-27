@@ -20,11 +20,15 @@ The stock ticker "PAYFIN" is hardcoded in the program. We can change the value o
 
 ## How the two estimates compare DCF and EV EBITDA multiple
 For PAYBOND the multiples were as given below. The DCF is significantly higher than EV/EBITDA multiple. Multiple value used is 6
-EV/EBITDA  8100000.00
-      DCF 36472955.04
+| Multiple | Value    |
+| -------- | -------- |
+|EV/EBITDA | 8100000.00
+|    DCF   |36472955.04
 
 while for PAYRETAIL the details are provided below. They are comparable. Multiple value used is 8
-EV/EBITDA 10800000.00
-      DCF 13181161.28
+| Multiple | Value    |
+| -------- | -------- |
+| EV/EBITDA | 10800000.00 |
+|      DCF | 13181161.28 |
 
 Above observation can be explained by the fact that while EBITDA, tax rate, terminal growrth rate is same for all stocks, Beta is significantly lower for PAYBOND 7.07% vs 10.67% for PAYRETAIL. Due to this DCF is significantly higher for PAYBOND as compared to PAYRETAIL (36.47 million vs 13.18 million)
