@@ -18,7 +18,7 @@ These charts have been also copied to this READ me file
     a) Install sqlite client
     b) Go the payments_fraud_analyiics folder (as was done in Step 1 above)
     c) Run the command sqlite3 paytm_payments.db. This will open a SQL terminal
-    d) Execute the queries avaialnle in the file "sql_queries.sql"
+    d) Execute the queries avaialable in the file "sql_queries.sql"
 4) To run the python notebook that conatains reconciliation logic inside the function reconcile_payments():
     a) Install ipython
     b) Go the folder payment_fraud_analytics as was done in step 1 above
@@ -93,7 +93,7 @@ Code available in reconcile.ipynb file. File has comments for the design decisio
 ### Part D — Four-layer analytics dashboard
 All logic available in dashboard.ipynb file.
 
-Output frm the file:
+Output from the file:
 missing_in_gateway_count:  27 (~ 5%)
 missing_in_ledger_count:  10 (~ 2%)
 amount_mismatch_count:  16 (~ 3%)
@@ -111,7 +111,7 @@ Created 2 functions create_scorecard and create_header_plot.
 
 4) chargeback ratio was calculated as len(ledger_df[ledger_df['status'] == 'chargeback']) / len(ledger_df) * 100
 
-![alt text](img1.png)
+![alt text](header_scorecard.jpg)
 
 #### Time series chart of daily GMV and daily chargeback count over the 30-day window
 
@@ -128,7 +128,7 @@ ledger_chart_df = pd.merge(ledger_chart_gmv_df, ledger_chart_chargeback_df, on =
 
 ledger_chart_df['amount_inr_chargeback_count'] = ledger_chart_df['amount_inr_chargeback_count'].astype(int)
 
-![alt text](img2.png)
+![alt text](time_series_chart.jpg)
 
 #### Bar Charts of GMV by payment_method and by category (joined from merchants).
 
@@ -139,7 +139,7 @@ ledger_merchant_category_df = pd.merge(ledger_df, merchant_df, on='merchant_id')
 
 merchant_category_agg_df = ledger_merchant_category_df.groupby('category')['amount_inr'].sum()
 
-![alt text](img3.png)
+![alt text](barchart_GMVbyPaymentmethod_category.jpg)
 
 #### Table of top 10 merchants by transaction count, with conditional highlighting (e.g., a flag column) for any merchant whose chargeback_ratio exceeds 1% : chargeback_ratio (per-merchant) = (count of that merchant's transactions with status == "chargeback") / (count of all of that merchant's transactions).
 
@@ -161,5 +161,5 @@ top_merchants_flag_df = top_merchants_flag_df.sort_values(by='transaction_count'
 
 Then used code to conditionally format the table based the 'flag' value. 
 
-![alt text](img4.png)
+![alt text](table_highlight_chargeback.jpg)
 

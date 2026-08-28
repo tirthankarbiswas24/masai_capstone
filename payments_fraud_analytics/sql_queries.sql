@@ -2,7 +2,7 @@
 
 -- 1) Quantify chargeback impact: count of chargeback transactions, unique users affected, total chargeback amount.
 
-select count(*) as users_impacted, count(distinct user_id) as distinct_users_impacted, sum(amount_inr) as total_amount from transactions where status = 'chargeback'
+select count(*) as users_impacted, count(distinct user_id) as distinct_users_impacted, sum(amount_inr) as total_amount from transactions where status = 'chargeback';
 
 -- Result -->
 -- users_impacted	distinct_users_impacted	total_amount
@@ -443,7 +443,7 @@ group by u.user_id order by u.user_id;
 
 -- 5) List users with more than 3 transactions, limit to top 5 users only
 
-select user_id, count(*) as cnt from transactions group by user_id having cnt > 3 order by cnt desc limit 5
+select user_id, count(*) as cnt from transactions group by user_id having cnt > 3 order by cnt desc limit 5;
 
 --Result --> 
 --user_id	cnt
