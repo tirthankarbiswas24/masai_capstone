@@ -5,7 +5,7 @@ Capstone project for Fintech and AI prpogram
 
 
 # how to run the project
-- For Part A — Portfolio advisory agent --> run "python advisory_agent.py"
+- For Part A — Portfolio advisory agent --> go to the folder ai_advisory_blockchain using the command "cd ai_advisory_blockchain" at the roor folder, and then run "python advisory_agent.py"
 It will execute the advisory_agent to output the portfolio returns variance and if human escalation is needed. It will also output the templated line requested in the assignment.
 For {risk_tolerance} investor {investor_id}, we recommend an allocation across {tickers} with an expected portfolio return of {return:.1%} and volatility of {vol:.1%}
 - For Part B — Structured disclosure extraction --> run "python extract_disclosure.py"
